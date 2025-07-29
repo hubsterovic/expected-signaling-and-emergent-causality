@@ -86,15 +86,22 @@ def haar_expected_mc_signaling_X_to_Y(
     d_A: int,
     d_B: int,
     direction: Literal["A to B", "B to A"] = "A to B",
-) -> tuple[float, float]:
+    dm_type: Literal["pure", "product", "mixed"] = "pure",
+) -> tuple[float, list[float]]:
     which = "A" if direction == "A to B" else "B"
 
     coms = random_Haar_sampled_bip_COMS(d_A, d_B)
-    rho = random_Haar_pure_dm(d_A, d_B)
-    # rho = random_Haar_product_dm(d_A, d_B)
+    if dm_type == "pure":
+        rho = random_Haar_pure_dm(d_A, d_B)
+    elif dm_type == "product":
+        rho = random_Haar_product_dm(d_A, d_B)
+    elif dm_type == "mixed":
+        raise NotImplementedError()
 
     dists: list[float] = []
-    for _ in tqdm(range(N), desc=f"Computing <S>_{direction}_({d_A=},{d_B=})", leave=False):
+    for _ in tqdm(
+        range(N), desc=f"Computing <S>_{direction}_({d_A=},{d_B=})", leave=False
+    ):
         U_AB = random_Haar_sampled_unitary(d_A, d_B)
         W_AB = random_Haar_sampled_unitary(d_A, d_B)
         V_X = partially_random_Haar_sampled_unitary(d_A, d_B, which)
@@ -102,7 +109,7 @@ def haar_expected_mc_signaling_X_to_Y(
             U_AB=U_AB, V_X=V_X, W_AB=W_AB, rho_AB=rho, coms=coms, direction=direction
         )
         dists.append(S_X_to_Y)
-    return (float(np.mean(dists)), float(np.var(dists)))
+    return (float(np.mean(dists)), dists)
 
 
 def main():
