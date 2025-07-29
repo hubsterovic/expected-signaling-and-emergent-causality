@@ -2,7 +2,9 @@
 
 ### Introduction
 
-Let $\ket{\psi} \in \mathcal{H}_A \otimes \mathcal{H}_B$ be some bipartite state. Consider the Haar random pure state $\rho_{AB}^U := U_{AB} \ket{\psi}$, and the locally transformed one $\rho_{AB}^{UV} := ( V_A \otimes \mathbf{1}_B ) \rho_{AB}^{U} (V_A \otimes \mathbf{1}_B )^\dagger$. Let us define the Haar random complete orthogonal measurement super operator (COMS):
+![image](misc/intro_tex.png)
+
+<!-- Let $\ket{\psi} \in \mathcal{H}_A \otimes \mathcal{H}_B$ be some bipartite state. Consider the Haar random pure state $\rho_{AB}^U := U_{AB} \ket{\psi}$, and the locally transformed one $\rho_{AB}^{UV} := ( V_A \otimes \mathbf{1}_B ) \rho_{AB}^{U} (V_A \otimes \mathbf{1}_B )^\dagger$. Let us define the Haar random complete orthogonal measurement super operator (COMS):
 
 $$
 \begin{align}
@@ -39,7 +41,7 @@ $$
 \end{align}
 $$
 
-This is the quantity studied in the project.
+This is the quantity studied in the project. -->
 
 ### Setup
 
