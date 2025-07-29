@@ -8,5 +8,6 @@ dependencies = [
     "matplotlib>=3.10.3",
     "qutip>=5.2.0",
     "ruff>=0.12.4",
+    "seaborn>=0.13.2",
     "tqdm>=4.67.1",
 ]
