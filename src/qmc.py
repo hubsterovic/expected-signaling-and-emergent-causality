@@ -78,7 +78,7 @@ def compute_signaling_X_to_Y(
     rho_U_V_W_Y = rho_AB_U_V_W.ptrace(ptr_sel)
 
     dist_hs_squared = qt.hilbert_dist(rho_U_W_Y, rho_U_V_W_Y) ** 2
-    return dist_hs_squared  # type: ignore
+    return 0.5 * dist_hs_squared  # type: ignore
 
 
 def haar_expected_mc_signaling_X_to_Y(
