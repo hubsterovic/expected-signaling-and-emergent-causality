@@ -4,6 +4,7 @@
         "kets",
         "Qobj",
         "qutip",
+        "stds",
         "unitaries"
     ]
 }

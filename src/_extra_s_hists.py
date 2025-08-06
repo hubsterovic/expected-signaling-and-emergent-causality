@@ -1,4 +1,4 @@
-from help import haar_expected_mc_signaling_X_to_Y
+from qmc import haar_expected_mc_signaling_X_to_Y
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np

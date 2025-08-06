@@ -1,6 +1,6 @@
 import qutip as qt
 import numpy as np
-from help import random_Haar_sampled_bip_COMS
+from qmc import random_Haar_sampled_bip_COMS
 
 
 def test_orthogonal(psi: qt.Qobj, phi: qt.Qobj, _tol: float = 1e-10) -> bool:

@@ -87,10 +87,11 @@ def haar_expected_mc_signaling_X_to_Y(
     d_B: int,
     direction: Literal["A to B", "B to A"] = "A to B",
     dm_type: Literal["pure", "product", "mixed"] = "pure",
+    fixed_coms: None | list[qt.Qobj] = None,
 ) -> tuple[float, list[float]]:
     which = "A" if direction == "A to B" else "B"
 
-    coms = random_Haar_sampled_bip_COMS(d_A, d_B)
+    coms = fixed_coms or random_Haar_sampled_bip_COMS(d_A, d_B)
     if dm_type == "pure":
         rho = random_Haar_pure_dm(d_A, d_B)
     elif dm_type == "product":
@@ -103,7 +104,11 @@ def haar_expected_mc_signaling_X_to_Y(
         range(N), desc=f"Computing <S>_{direction}_({d_A=},{d_B=})", leave=False
     ):
         U_AB = random_Haar_sampled_unitary(d_A, d_B)
-        W_AB = random_Haar_sampled_unitary(d_A, d_B)
+        W_AB = (
+            qt.identity([d_A, d_B])
+            if fixed_coms
+            else random_Haar_sampled_unitary(d_A, d_B)
+        )
         V_X = partially_random_Haar_sampled_unitary(d_A, d_B, which)
         S_X_to_Y = compute_signaling_X_to_Y(
             U_AB=U_AB, V_X=V_X, W_AB=W_AB, rho_AB=rho, coms=coms, direction=direction
