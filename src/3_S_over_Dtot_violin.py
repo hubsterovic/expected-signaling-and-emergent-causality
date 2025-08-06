@@ -46,7 +46,7 @@ def plot(data):
         hue="direction",
         data=df,
         inner="quart",
-        scale="width",
+        density_norm="area",
         split=True,
         gap=0.1,
         log_scale=(False, True),

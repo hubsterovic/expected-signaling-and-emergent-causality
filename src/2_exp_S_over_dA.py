@@ -59,7 +59,7 @@ def plot(data):
             10 ** (intercept + slope * log_d_As),
             linestyle="--",
             color=color,
-            label=rf"Fit $\langle \mathcal{{S}} \rangle_{{{direction.replace("to", r"\to")}}} \propto d_A^{{{slope:.2f}}}$",
+            label=rf"Fit $\langle \mathcal{{S}} \rangle_{{{direction.replace('to', r'\to')}}} \propto d_A^{{{slope:.2f}}}$",
         )
 
     plt.xscale("log")

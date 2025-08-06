@@ -48,8 +48,8 @@ def plot(data):
 
     for i, (direction, dist, mean, color) in enumerate(
         [
-            ("A → B", data["dists_AtoB"], data["mean_AtoB"], "blue"),
-            ("B → A", data["dists_BtoA"], data["mean_BtoA"], "red"),
+            ("A to B", data["dists_AtoB"], data["mean_AtoB"], "blue"),
+            ("B to A", data["dists_BtoA"], data["mean_BtoA"], "red"),
         ]
     ):
         plt.subplot(1, 2, i + 1)
@@ -67,11 +67,13 @@ def plot(data):
             color=color,
             linestyle="--",
             linewidth=1.5,
-            label=rf"$\langle \mathcal{{S}} \rangle_{{{direction}}} = {float(c):.2f} \times 10^{{{int(exp)}}}$",
+            label=rf"$\langle \mathcal{{S}} \rangle_{{{direction.replace('to', r'\to')}}} = {float(c):.2f} \times 10^{{{int(exp)}}}$",
         )
         plt.xlabel(rf"$\mathcal{{S}}_{{{direction}}}$")
         plt.ylabel("Probability")
-        plt.title(rf"Signaling Distribution {direction.replace('→', 'to')} for fixed COMS $(N=10^{int(np.log10(N))})$")
+        plt.title(
+            rf"Signaling Distribution {direction.replace('→', 'to')} for fixed COMS $(N=10^{int(np.log10(N))})$"
+        )
         plt.legend()
 
     plt.tight_layout()
