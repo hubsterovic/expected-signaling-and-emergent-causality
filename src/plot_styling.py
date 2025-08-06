@@ -6,7 +6,7 @@ def apply_plot_style():
     sns.set_theme(
         style="whitegrid",
         context="paper",
-        font_scale=1.8,
+        font_scale=1.5,
     )
     plt.rcParams.update(
         {

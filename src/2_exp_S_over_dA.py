@@ -5,9 +5,9 @@ from plot_styling import apply_plot_style
 
 
 def simulate():
-    N = 10**3
+    N = 10**2
     d_B = 2
-    d_A_MAX = 100
+    d_A_MAX = 50
 
     d_As = sorted(
         set(
@@ -59,14 +59,14 @@ def plot(data):
             10 ** (intercept + slope * log_d_As),
             linestyle="--",
             color=color,
-            label=rf"{direction} fit: $x^{{{slope:.2f}}}$",
+            label=rf"Fit $\langle \mathcal{{S}} \rangle_{{{direction.replace("to", r"\to")}}} \propto d_A^{{{slope:.2f}}}$",
         )
 
     plt.xscale("log")
     plt.yscale("log")
-    plt.xlabel(r"$d_A$ (log scale)")
-    plt.ylabel(r"$\langle \mathcal{S} \rangle_{X \rightarrow Y}$ (log scale)")
-    plt.title(f"Log-Log Power Law Fit $(N=10^{int(np.log10(N))})$")
+    plt.xlabel(r"$d_A$")
+    plt.ylabel(r"$\langle \mathcal{S} \rangle_{X \rightarrow Y}$")
+    plt.title(rf"Expected Signaling Log-Log $(N=10^{int(np.log10(N))})$")
     plt.legend()
     plt.tight_layout()
     plt.show()

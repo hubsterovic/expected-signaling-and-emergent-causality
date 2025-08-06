@@ -2,12 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import qutip as qt
-from src.plot_styling import apply_plot_style
-from src.qmc import haar_expected_mc_signaling_X_to_Y
+from plot_styling import apply_plot_style
+from qmc import haar_expected_mc_signaling_X_to_Y
 
 
 def simulate():
-    N = 10**5
+    N = 10**3
     d_A = d_B = 2
 
     # Basis
@@ -71,7 +71,7 @@ def plot(data):
         )
         plt.xlabel(rf"$\mathcal{{S}}_{{{direction}}}$")
         plt.ylabel("Probability")
-        plt.title(rf"{direction} Signaling $(N=10^{int(np.log10(N))})$")
+        plt.title(rf"Signaling Distribution {direction.replace('→', 'to')} for fixed COMS $(N=10^{int(np.log10(N))})$")
         plt.legend()
 
     plt.tight_layout()

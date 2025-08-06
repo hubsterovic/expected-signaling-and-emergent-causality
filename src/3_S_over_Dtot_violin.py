@@ -7,7 +7,7 @@ from plot_styling import apply_plot_style
 
 
 def simulate():
-    N = 10**4
+    N = 10**2
     dims = range(2, 9)
     directions = ["A to B", "B to A"]
     dm_type = "pure"
@@ -54,10 +54,10 @@ def plot(data):
     )
     plt.xlabel(r"$d_A = d_B$")
     plt.ylabel(r"$\mathcal{S}_{X \rightarrow Y}$")
-    plt.title(f"Distribution of Signaling Strength $(N=10^{int(np.log10(N))})$")
+    plt.title(f"Signaling Distribution for $d_A = d_B$ $(N=10^{int(np.log10(N))})$")
 
     plt.legend(title="Direction")
-    sns.despine()
+    # sns.despine()
     plt.tight_layout()
     plt.show()
 
