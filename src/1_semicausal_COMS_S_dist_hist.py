@@ -1,16 +1,17 @@
-import numpy as np
+from qmc import haar_expected_mc_signaling_X_to_Y
+from plot_styling import apply_plot_style
+from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import qutip as qt
-from plot_styling import apply_plot_style
-from qmc import haar_expected_mc_signaling_X_to_Y
 
 
 def simulate():
-    N = 10**3
+    N = 10**5
     d_A = d_B = 2
 
-    # Basis
+
     zero = qt.basis(2, 0)
     one = qt.basis(2, 1)
     plus = (zero + one).unit()
@@ -69,13 +70,14 @@ def plot(data):
             linewidth=1.5,
             label=rf"$\langle \mathcal{{S}} \rangle_{{{direction.replace('to', r'\to')}}} = {float(c):.2f} \times 10^{{{int(exp)}}}$",
         )
-        plt.xlabel(rf"$\mathcal{{S}}_{{{direction}}}$")
+        plt.xlabel(rf"$\mathcal{{S}}_{{{direction.replace('to', r'\to')}}}$")
         plt.ylabel("Probability")
         plt.title(
-            rf"Signaling Distribution {direction.replace('→', 'to')} for fixed COMS $(N=10^{int(np.log10(N))})$"
+            rf"Signaling {direction} for fixed COMS $(N=10^{int(np.log10(N))})$"
         )
         plt.legend()
 
+    plt.savefig(f"plots/signaling_for_semicausal_coms_N={N}__[dt={datetime.now().strftime("%Y%m%d_%H%M%S")}].png")
     plt.tight_layout()
     plt.show()
 

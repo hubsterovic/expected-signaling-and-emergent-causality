@@ -1,13 +1,14 @@
-import numpy as np
-import matplotlib.pyplot as plt
 from qmc import haar_expected_mc_signaling_X_to_Y
 from plot_styling import apply_plot_style
+from datetime import datetime
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def simulate():
-    N = 10**2
+    N = 10**3
     d_B = 2
-    d_A_MAX = 50
+    d_A_MAX = 100
 
     d_As = sorted(
         set(
@@ -69,6 +70,9 @@ def plot(data):
     plt.title(rf"Expected Signaling Log-Log $(N=10^{int(np.log10(N))})$")
     plt.legend()
     plt.tight_layout()
+
+    plt.savefig(f"plots/expected_signaling_N={N}__[dt={datetime.now().strftime("%Y%m%d_%H%M%S")}].png")
+
     plt.show()
 
 
