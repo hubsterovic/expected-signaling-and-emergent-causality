@@ -71,7 +71,9 @@ def plot(data):
     plt.legend()
     plt.tight_layout()
 
-    plt.savefig(f"plots/expected_signaling_N={N}__[dt={datetime.now().strftime("%Y%m%d_%H%M%S")}].png")
+    plt.savefig(
+        f"plots/expected_signaling_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
+    )
 
     plt.show()
 

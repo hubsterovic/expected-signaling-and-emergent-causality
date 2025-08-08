@@ -11,7 +11,6 @@ def simulate():
     N = 10**5
     d_A = d_B = 2
 
-
     zero = qt.basis(2, 0)
     one = qt.basis(2, 1)
     plus = (zero + one).unit()
@@ -72,12 +71,12 @@ def plot(data):
         )
         plt.xlabel(rf"$\mathcal{{S}}_{{{direction.replace('to', r'\to')}}}$")
         plt.ylabel("Probability")
-        plt.title(
-            rf"Signaling {direction} for fixed COMS $(N=10^{int(np.log10(N))})$"
-        )
+        plt.title(rf"Signaling {direction} for fixed COMS $(N=10^{int(np.log10(N))})$")
         plt.legend()
 
-    plt.savefig(f"plots/signaling_for_semicausal_coms_N={N}__[dt={datetime.now().strftime("%Y%m%d_%H%M%S")}].png")
+    plt.savefig(
+        f"plots/signaling_for_semicausal_coms_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
+    )
     plt.tight_layout()
     plt.show()
 

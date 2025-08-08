@@ -61,7 +61,9 @@ def plot(data):
     plt.legend(title="Direction")
     plt.tight_layout()
 
-    plt.savefig(f"plots/signaling_violin_N={N}__[dt={datetime.now().strftime("%Y%m%d_%H%M%S")}].png")
+    plt.savefig(
+        f"plots/signaling_violin_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
+    )
 
     plt.show()
 
