@@ -61,6 +61,7 @@ def compute_signaling_X_to_Y(
     rho_AB: qt.Qobj,
     coms: list[qt.Qobj],
     direction: Literal["A to B", "B to A"] = "A to B",
+    distance: Literal["half-HS-squared", "trace"] = "half-HS-squared",
 ) -> float:
     if direction == "A to B":
         ptr_sel = 1
@@ -77,8 +78,11 @@ def compute_signaling_X_to_Y(
     rho_U_W_Y = rho_AB_U_W.ptrace(ptr_sel)
     rho_U_V_W_Y = rho_AB_U_V_W.ptrace(ptr_sel)
 
-    dist_hs_squared = qt.hilbert_dist(rho_U_W_Y, rho_U_V_W_Y) ** 2
-    return 0.5 * dist_hs_squared  # type: ignore
+    if distance == "half-HS-squared":
+        dists = 0.5 * qt.hilbert_dist(rho_U_W_Y, rho_U_V_W_Y) ** 2
+    elif distance == "trace":
+        dists = qt.tracedist(rho_U_W_Y, rho_U_V_W_Y)
+    return dists  # type: ignore
 
 
 def haar_expected_mc_signaling_X_to_Y(
@@ -88,6 +92,7 @@ def haar_expected_mc_signaling_X_to_Y(
     direction: Literal["A to B", "B to A"] = "A to B",
     dm_type: Literal["pure", "product", "mixed"] = "pure",
     fixed_coms: None | list[qt.Qobj] = None,
+    distance: Literal["half-HS-squared", "trace"] = "half-HS-squared",
 ) -> tuple[float, list[float]]:
     which = "A" if direction == "A to B" else "B"
 
@@ -111,7 +116,13 @@ def haar_expected_mc_signaling_X_to_Y(
         )
         V_X = partially_random_Haar_sampled_unitary(d_A, d_B, which)
         S_X_to_Y = compute_signaling_X_to_Y(
-            U_AB=U_AB, V_X=V_X, W_AB=W_AB, rho_AB=rho, coms=coms, direction=direction
+            U_AB=U_AB,
+            V_X=V_X,
+            W_AB=W_AB,
+            rho_AB=rho,
+            coms=coms,
+            direction=direction,
+            distance=distance,
         )
         dists.append(S_X_to_Y)
     return (float(np.mean(dists)), dists)
