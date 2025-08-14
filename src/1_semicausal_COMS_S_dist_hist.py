@@ -7,8 +7,7 @@ import numpy as np
 import qutip as qt
 
 
-def simulate():
-    N = 10**5
+def simulate(N: int) -> dict:
     d_A = d_B = 2
 
     zero = qt.basis(2, 0)
@@ -23,36 +22,60 @@ def simulate():
         qt.tensor(one, minus),
     ]
 
-    mean_AtoB, dists_AtoB = haar_expected_mc_signaling_X_to_Y(
-        N=N, d_A=d_A, d_B=d_B, direction="A to B", dm_type="pure", fixed_coms=coms_S
+    data_AtoB = haar_expected_mc_signaling_X_to_Y(
+        N=N,
+        d_A=d_A,
+        d_B=d_B,
+        direction="A to B",
+        dm_type="pure",
+        fixed_coms=coms_S,
     )
-    mean_BtoA, dists_BtoA = haar_expected_mc_signaling_X_to_Y(
-        N=N, d_A=d_A, d_B=d_B, direction="B to A", dm_type="pure", fixed_coms=coms_S
+    data_BtoA = haar_expected_mc_signaling_X_to_Y(
+        N=N,
+        d_A=d_A,
+        d_B=d_B,
+        direction="B to A",
+        dm_type="pure",
+        fixed_coms=coms_S,
     )
 
     return {
         "N": N,
-        "mean_AtoB": mean_AtoB,
-        "dists_AtoB": dists_AtoB,
-        "mean_BtoA": mean_BtoA,
-        "dists_BtoA": dists_BtoA,
+        # Trace
+        "tr_mean_AtoB": np.mean(data_AtoB["tr_dists"]),
+        "tr_dists_AtoB": data_AtoB["tr_dists"],
+        "tr_mean_BtoA": np.mean(data_BtoA["tr_dists"]),
+        "tr_dists_BtoA": data_BtoA["tr_dists"],
+        # H
+        "h_mean_AtoB": np.mean(data_AtoB["h_dists"]),
+        "h_dists_AtoB": data_AtoB["h_dists"],
+        "h_mean_BtoA": np.mean(data_BtoA["h_dists"]),
+        "h_dists_BtoA": data_BtoA["h_dists"],
     }
 
 
-def plot(data):
+def plot(data: dict) -> None:
     apply_plot_style()
-    BINS = 50
+    BINS = 25
     N = data["N"]
 
-    plt.figure(figsize=(12, 5))
+    plt.figure(figsize=(10, 8))  # smaller width, taller height for 2x2 layout
 
-    for i, (direction, dist, mean, color) in enumerate(
-        [
-            ("A to B", data["dists_AtoB"], data["mean_AtoB"], "blue"),
-            ("B to A", data["dists_BtoA"], data["mean_BtoA"], "red"),
-        ]
-    ):
-        plt.subplot(1, 2, i + 1)
+    # Top row = Trace signaling, Bottom row = H signaling
+    # Left col = A→B, Right col = B→A
+    plot_specs = [
+        ("A to B", "tr_dists_AtoB", "tr_mean_AtoB", "blue", r"\mathrm{Tr}", 1),
+        ("B to A", "tr_dists_BtoA", "tr_mean_BtoA", "red", r"\mathrm{Tr}", 2),
+        ("A to B", "h_dists_AtoB", "h_mean_AtoB", "blue", r"\widehat{\mathrm{H}}", 3),
+        ("B to A", "h_dists_BtoA", "h_mean_BtoA", "red", r"\widehat{\mathrm{H}}", 4),
+    ]
+
+    for direction_tex, dist_key, mean_key, color, metric_tex, subplot_idx in plot_specs:
+        plt.subplot(2, 2, subplot_idx)
+
+        dist = data[dist_key]
+        mean_val = data[mean_key]
+
         sns.histplot(
             dist,
             bins=BINS,
@@ -61,28 +84,36 @@ def plot(data):
             color=color,
             log_scale=(True, False),
         )
-        c, exp = f"{mean:.2e}".split("e")
+
+        # format mean in scientific notation
+        c, exp = f"{mean_val:.2e}".split("e")
         plt.axvline(
-            mean,
+            mean_val,
             color=color,
             linestyle="--",
             linewidth=1.5,
-            label=rf"$\langle \mathcal{{S}} \rangle_{{{direction.replace('to', r'\to')}}} = {float(c):.2f} \times 10^{{{int(exp)}}}$",
+            label=rf"$\langle \mathcal{{S}}^{{{metric_tex}}} \rangle_{{{direction_tex.replace('to', r'\to')}}} = {float(c):.2f} \times 10^{{{int(exp)}}}$",
         )
-        plt.xlabel(rf"$\mathcal{{S}}_{{{direction.replace('to', r'\to')}}}$")
+
+        plt.xlabel(
+            rf"$\mathcal{{S}}^{{{metric_tex}}}_{{{direction_tex.replace('to', r'\to')}}}$"
+        )
         plt.ylabel("Probability")
-        plt.title(rf"Signaling {direction} for fixed COMS $(N=10^{int(np.log10(N))})$")
+        plt.title(
+            rf"${metric_tex}$-Signaling {direction_tex} $(N=10^{int(np.log10(N))})$"
+        )
         plt.legend()
 
-    plt.savefig(
-        f"plots/signaling_for_semicausal_coms_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
-    )
     plt.tight_layout()
+    plt.savefig(
+        f"plots/tr_and_h_signaling_for_semicausal_COMS_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
+    )
     plt.show()
 
 
-def main():
-    data = simulate()
+def main(full_sim: bool = True) -> None:
+    N = 10**5 if full_sim else 10**3
+    data = simulate(N=N)
     plot(data)
 
 
