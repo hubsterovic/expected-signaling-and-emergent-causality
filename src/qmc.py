@@ -2,6 +2,17 @@ from typing import Literal
 from tqdm import tqdm
 import qutip as qt
 import numpy as np
+from typing import TypedDict
+
+
+class SigSampleData(TypedDict):
+    tr_dist: float
+    h_dist: float
+
+
+class SignalingData(TypedDict):
+    tr_dists: np.typing.NDArray
+    h_dists: np.typing.NDArray
 
 
 def random_Haar_sampled_unitary(d_A: int, d_B: int) -> qt.Qobj:
@@ -61,8 +72,7 @@ def compute_signaling_X_to_Y(
     rho_AB: qt.Qobj,
     coms: list[qt.Qobj],
     direction: Literal["A to B", "B to A"] = "A to B",
-    distance: Literal["half-HS-squared", "trace"] = "half-HS-squared",
-) -> float:
+) -> SigSampleData:
     if direction == "A to B":
         ptr_sel = 1
     elif direction == "B to A":
@@ -78,11 +88,10 @@ def compute_signaling_X_to_Y(
     rho_U_W_Y = rho_AB_U_W.ptrace(ptr_sel)
     rho_U_V_W_Y = rho_AB_U_V_W.ptrace(ptr_sel)
 
-    if distance == "half-HS-squared":
-        dists = 0.5 * qt.hilbert_dist(rho_U_W_Y, rho_U_V_W_Y) ** 2
-    elif distance == "trace":
-        dists = qt.tracedist(rho_U_W_Y, rho_U_V_W_Y)
-    return dists  # type: ignore
+    tr_dist = float(qt.tracedist(rho_U_W_Y, rho_U_V_W_Y))
+    h_dist = float(0.5 * qt.hilbert_dist(rho_U_W_Y, rho_U_V_W_Y) ** 2)  # type: ignore
+
+    return SigSampleData(tr_dist=tr_dist, h_dist=h_dist)
 
 
 def haar_expected_mc_signaling_X_to_Y(
@@ -92,8 +101,7 @@ def haar_expected_mc_signaling_X_to_Y(
     direction: Literal["A to B", "B to A"] = "A to B",
     dm_type: Literal["pure", "product", "mixed"] = "pure",
     fixed_coms: None | list[qt.Qobj] = None,
-    distance: Literal["half-HS-squared", "trace"] = "half-HS-squared",
-) -> tuple[float, list[float]]:
+) -> SignalingData:
     which = "A" if direction == "A to B" else "B"
 
     coms = fixed_coms or random_Haar_sampled_bip_COMS(d_A, d_B)
@@ -104,7 +112,8 @@ def haar_expected_mc_signaling_X_to_Y(
     elif dm_type == "mixed":
         raise NotImplementedError()
 
-    dists: list[float] = []
+    tr_signals: list[float] = []
+    h_signals: list[float] = []
     for _ in tqdm(
         range(N), desc=f"Computing <S>_{direction}_({d_A=},{d_B=})", leave=False
     ):
@@ -122,19 +131,23 @@ def haar_expected_mc_signaling_X_to_Y(
             rho_AB=rho,
             coms=coms,
             direction=direction,
-            distance=distance,
         )
-        dists.append(S_X_to_Y)
-    return (float(np.mean(dists)), dists)
+        tr_signals.append(S_X_to_Y["tr_dist"])
+        h_signals.append(S_X_to_Y["h_dist"])
+
+    return SignalingData(tr_dists=np.array(tr_signals), h_dists=np.array(h_signals))
 
 
 def main():
-    N = 5000
-    d_A = 10
+    N = 1000
+    d_A = 2
     d_B = 2
 
-    m, v = haar_expected_mc_signaling_X_to_Y(N, d_A, d_B)
-    print(m, v)
+    data = haar_expected_mc_signaling_X_to_Y(N, d_A, d_B)
+    tr_mean = np.mean(data["tr_dists"])
+    print(f"{tr_mean=}")
+    h_mean = np.mean(data["h_dists"])
+    print(f"{h_mean=}")
 
 
 if __name__ == "__main__":
