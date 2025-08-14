@@ -1,6 +1,7 @@
 from qmc import haar_expected_mc_signaling_X_to_Y
 from plot_styling import apply_plot_style
 from datetime import datetime
+from typing import Literal
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -23,20 +24,10 @@ def simulate(N: int) -> dict:
     ]
 
     data_AtoB = haar_expected_mc_signaling_X_to_Y(
-        N=N,
-        d_A=d_A,
-        d_B=d_B,
-        direction="A to B",
-        dm_type="pure",
-        fixed_coms=coms_S,
+        N=N, d_A=d_A, d_B=d_B, direction="A to B", dm_type="pure", fixed_coms=coms_S
     )
     data_BtoA = haar_expected_mc_signaling_X_to_Y(
-        N=N,
-        d_A=d_A,
-        d_B=d_B,
-        direction="B to A",
-        dm_type="pure",
-        fixed_coms=coms_S,
+        N=N, d_A=d_A, d_B=d_B, direction="B to A", dm_type="pure", fixed_coms=coms_S
     )
 
     return {
@@ -54,24 +45,30 @@ def simulate(N: int) -> dict:
     }
 
 
-def plot(data: dict) -> None:
+def plot(data: dict, metric: Literal["Tr", "H"]) -> None:
     apply_plot_style()
     BINS = 25
     N = data["N"]
 
-    plt.figure(figsize=(10, 8))  # smaller width, taller height for 2x2 layout
+    if metric == "Tr":
+        metric_tex = r"\mathrm{Tr}"
+        specs = [
+            ("A to B", "tr_dists_AtoB", "tr_mean_AtoB", "blue", 1),
+            ("B to A", "tr_dists_BtoA", "tr_mean_BtoA", "red", 2),
+        ]
+    elif metric == "H":
+        metric_tex = r"\widehat{\mathrm{H}}"
+        specs = [
+            ("A to B", "h_dists_AtoB", "h_mean_AtoB", "blue", 1),
+            ("B to A", "h_dists_BtoA", "h_mean_BtoA", "red", 2),
+        ]
+    else:
+        raise ValueError("metric must be 'Tr' or 'H'")
 
-    # Top row = Trace signaling, Bottom row = H signaling
-    # Left col = A→B, Right col = B→A
-    plot_specs = [
-        ("A to B", "tr_dists_AtoB", "tr_mean_AtoB", "blue", r"\mathrm{Tr}", 1),
-        ("B to A", "tr_dists_BtoA", "tr_mean_BtoA", "red", r"\mathrm{Tr}", 2),
-        ("A to B", "h_dists_AtoB", "h_mean_AtoB", "blue", r"\widehat{\mathrm{H}}", 3),
-        ("B to A", "h_dists_BtoA", "h_mean_BtoA", "red", r"\widehat{\mathrm{H}}", 4),
-    ]
+    plt.figure(figsize=(10, 4))  # 1 row, 2 columns
 
-    for direction_tex, dist_key, mean_key, color, metric_tex, subplot_idx in plot_specs:
-        plt.subplot(2, 2, subplot_idx)
+    for direction_tex, dist_key, mean_key, color, subplot_idx in specs:
+        plt.subplot(1, 2, subplot_idx)
 
         dist = data[dist_key]
         mean_val = data[mean_key]
@@ -106,15 +103,16 @@ def plot(data: dict) -> None:
 
     plt.tight_layout()
     plt.savefig(
-        f"plots/tr_and_h_signaling_for_semicausal_COMS_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
+        f"plots/{metric}_signaling_for_semicausal_COMS_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
     )
     plt.show()
 
 
-def main(full_sim: bool = True) -> None:
+def main(full_sim: bool = False) -> None:
     N = 10**5 if full_sim else 10**3
-    data = simulate(N=N)
-    plot(data)
+    data = simulate(N=N)  # always has both metrics
+    plot(data, "Tr")
+    plot(data, "H")
 
 
 if __name__ == "__main__":
