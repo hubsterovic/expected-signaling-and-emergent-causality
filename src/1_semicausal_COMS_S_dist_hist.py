@@ -47,7 +47,7 @@ def simulate(N: int) -> dict:
 
 def plot(data: dict, metric: Literal["Tr", "H"]) -> None:
     apply_plot_style()
-    BINS = 25
+    BINS = 50
     N = data["N"]
 
     if metric == "Tr":
@@ -89,7 +89,7 @@ def plot(data: dict, metric: Literal["Tr", "H"]) -> None:
             color=color,
             linestyle="--",
             linewidth=1.5,
-            label=rf"$\langle \mathcal{{S}}^{{{metric_tex}}} \rangle_{{{direction_tex.replace('to', r'\to')}}} = {float(c):.2f} \times 10^{{{int(exp)}}}$",
+            label=rf"$\langle \mathcal{{S}} \rangle^{{{metric_tex}}}_{{{direction_tex.replace('to', r'\to')}}} = {float(c):.2f} \times 10^{{{int(exp)}}}$",
         )
 
         plt.xlabel(
@@ -103,14 +103,14 @@ def plot(data: dict, metric: Literal["Tr", "H"]) -> None:
 
     plt.tight_layout()
     plt.savefig(
-        f"plots/{metric}_signaling_for_semicausal_COMS_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
+        f"plots/semicausal_{metric}_signaling_histogram__N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
     )
     plt.show()
 
 
-def main(full_sim: bool = False) -> None:
+def main(full_sim: bool = True) -> None:
     N = 10**5 if full_sim else 10**3
-    data = simulate(N=N)  # always has both metrics
+    data = simulate(N=N)
     plot(data, "Tr")
     plot(data, "H")
 

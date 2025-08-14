@@ -7,70 +7,103 @@ import pandas as pd
 import numpy as np
 
 
-def simulate():
-    N = 10**4
-    D_MIN = 2
-    D_MAX = 8
-    dims = range(D_MIN, D_MAX + 1)
+def simulate(N: int, dims: list[int], dm_type: str = "pure") -> dict:
     directions = ["A to B", "B to A"]
-    dm_type = "pure"
-
-    all_results = []
+    rows = []
 
     for direction in directions:
         for d in dims:
-            _, samples = haar_expected_mc_signaling_X_to_Y(
+            # returns (meta, SignalingData)
+            sd = haar_expected_mc_signaling_X_to_Y(
                 N=N,
                 d_A=d,
-                d_B=d,
-                dm_type=dm_type,
+                d_B=d,  # symmetric case: d_A = d_B = d
                 direction=direction,  # type: ignore
             )
-            for s in samples:
-                all_results.append(
-                    {"dimension": d, "signaling": s, "direction": direction}
+
+            # sd["tr_dists"], sd["h_dists"] are arrays of samples
+            for s in np.asarray(sd["tr_dists"]):
+                rows.append(
+                    {
+                        "dimension": d,
+                        "signaling": float(s),
+                        "direction": direction,
+                        "metric": "Tr",
+                    }
+                )
+            for s in np.asarray(sd["h_dists"]):
+                rows.append(
+                    {
+                        "dimension": d,
+                        "signaling": float(s),
+                        "direction": direction,
+                        "metric": "H",
+                    }
                 )
 
-    df = pd.DataFrame(all_results)
-    return {"df": df, "N": N}
+    df = pd.DataFrame.from_records(rows)
+    return {"df": df, "N": N, "dims": dims, "dm_type": dm_type}
 
 
-def plot(data):
+def _title_N(N: int) -> str:
+    # pretty title like N=10^3 if N is a power of 10
+    k = int(np.log10(N))
+    return rf"$N=10^{{{k}}}$" if 10**k == N else f"$N={N}$"
+
+
+def plot_violin_panel(data: dict) -> None:
     apply_plot_style()
-    df = data["df"]
+    df = data["df"].copy()
     N = data["N"]
 
+    # palettes: keep directions consistent across both panels
     palette = {"A to B": "blue", "B to A": "red"}
 
-    plt.figure(figsize=(10, 6))
-    sns.violinplot(
-        x="dimension",
-        y="signaling",
-        hue="direction",
-        data=df,
-        inner="quart",
-        density_norm="area",
-        split=True,
-        gap=0.1,
-        log_scale=(False, True),
-        palette=palette,
-    )
-    plt.xlabel(r"$d_A = d_B$")
-    plt.ylabel(r"$\mathcal{S}_{X \rightarrow Y}$")
-    plt.title(f"Signaling Distribution for $d_A = d_B$ $(N=10^{int(np.log10(N))})$")
-    plt.legend(title="Direction")
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=False)
+    axes_map = {"Tr": axes[0], "H": axes[1]}
+    metric_tex = {"Tr": r"\mathrm{Tr}", "H": r"\widehat{\mathrm{H}}"}
+
+    for metric, ax in axes_map.items():
+        sub = df[df["metric"] == metric].copy()
+        if sub.empty:
+            raise RuntimeError(f"No data for metric={metric}")
+
+        # seaborn violin with split by direction
+        sns.violinplot(
+            x="dimension",
+            y="signaling",
+            hue="direction",
+            data=sub,
+            inner="quart",
+            density_norm="area",
+            split=True,
+            gap=0.1,
+            log_scale=(False, True),  # x linear, y log
+            palette=palette,
+            ax=ax,
+        )
+        ax.set_xlabel(r"$d_A = d_B$")
+        ax.set_ylabel(r"$\mathcal{S}_{X \to Y}$")
+        ax.set_title(
+            rf"${metric_tex[metric]}$-Signaling Distribution $(d_A = d_B,$ {_title_N(N)})"
+        )
+        ax.legend_.set_title("Direction")
+
     plt.tight_layout()
-
-    plt.savefig(
-        f"plots/signaling_violin_N={N}__[dt={datetime.now().strftime('%Y%m%d_%H%M%S')}].png"
-    )
-
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out = f"plots/signaling_violin_panel__N={N}__[dt={ts}].png"
+    plt.savefig(out, dpi=300)
+    print(f"Saved 2x1 panel to: {out}")
     plt.show()
 
 
-def main():
-    data = simulate()
-    plot(data)
+def main(full_sim: bool = True):
+    N = 10**3 if full_sim else 10**3
+    DIMS = [2, 4, 8, 16] if full_sim else [2, 4, 8]
+
+    data = simulate(N=N, dims=DIMS, dm_type="pure")
+
+    plot_violin_panel(data)
 
 
 if __name__ == "__main__":
