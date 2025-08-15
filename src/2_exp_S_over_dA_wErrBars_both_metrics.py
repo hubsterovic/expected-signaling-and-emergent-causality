@@ -40,25 +40,19 @@ def simulate_over_dA(
                 "Tr": np.asarray(res["tr_dists"]),
                 "H": np.asarray(res["h_dists"]),
             }
-
             for metric, samples in metric_map.items():
-                # (very small eps to avoid -inf if needed)
-                eps = np.finfo(float).tiny
-                s_lin = samples
-                s_log = np.log10(np.maximum(samples, eps))
-
-                q25, q50, q75 = np.percentile(s_log, [25, 50, 75])
-
+                q25, q50, q75 = np.percentile(samples, [25, 50, 75])
                 rows.append(
                     {
                         "d_A": d_A,
                         "d_B": d_B,
+                        "N": N,
                         "direction": direction,
                         "metric": metric,  # "Tr" or "H"
-                        "mean": float(s_lin.mean()),
-                        "median": float(10**q50),
-                        "q25": float(10**q25),
-                        "q75": float(10**q75),
+                        "mean": float(samples.mean()),
+                        "median": float(q50),
+                        "q25": float(q25),
+                        "q75": float(q75),
                     }
                 )
 
